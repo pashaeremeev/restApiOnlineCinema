@@ -1,7 +1,6 @@
 package com.study.hibernate.entity.dao;
 
 import com.study.hibernate.HibernateUtil;
-import com.study.hibernate.entity.FavMovies;
 import com.study.hibernate.entity.MarksMovies;
 import com.study.hibernate.entity.Movie;
 import com.study.hibernate.entity.User;
@@ -11,6 +10,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MarkMoviesDao {
 
@@ -31,9 +33,9 @@ public class MarkMoviesDao {
             TypedQuery<Double> query = session.createQuery(
                     "SELECT AVG(mark) " +
                             "FROM MarksMovies marksMovies " +
-                            "WHERE marksMovies.movie = :movie",
+                            "WHERE marksMovies.movie.idMovie = :movieId",
                     Double.class);
-            query.setParameter("movie", movie);
+            query.setParameter("movieId", idMovie);
             Double avgMark = query.getSingleResult();
             if (movie != null) {
                 movie.setRating(avgMark);
@@ -49,33 +51,50 @@ public class MarkMoviesDao {
         }
     }
 
-    public MarksMovies getMarkByUserId(Integer idMovie, Integer idUser) {
-        MarksMovies note = null;
+    public Integer getMarkByUserId(Integer idMovie, Integer idUser) {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.getTransaction().begin();
-            User user = userDao.getUserById(idMovie);
-            Movie movie = movieDao.getMovieById(idUser);
-            if (user != null && movie != null) {
-                CriteriaBuilder builder = session.getCriteriaBuilder();
-                CriteriaQuery<MarksMovies> query = builder.createQuery(MarksMovies.class);
-                Root<MarksMovies> root = query.from(MarksMovies.class);
-                query.select(root);
-                query.where(
-                        builder.equal(root.get("user"), user),
-                        builder.equal(root.get("movie"), movie)
-                );
-                note = session.createQuery(query).uniqueResult();
-            }
+            TypedQuery<Integer> query = session.createQuery(
+                    "SELECT mark " +
+                            "FROM MarksMovies markMovie " +
+                            //"INNER JOIN Movie movie ON movie.idMovie = markMovie.movie.idMovie " +
+                            "WHERE markMovie.user.idUser = :userId AND markMovie.movie.idMovie = :movieId",
+                    Integer.class);
+            query.setParameter("userId", idUser);
+            query.setParameter("movieId", idMovie);
+            return query.getSingleResult();
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         } finally {
             if (session != null && session.isOpen()) {
                 session.getTransaction().commit();
                 session.close();
             }
         }
-        return note;
+    }
+
+    public List<Integer> getMoviesIdsOfUsersMarks(Integer idUser) {
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction().begin();
+            TypedQuery<Integer> query = session.createQuery(
+                    "SELECT markMovie.movie.idMovie " +
+                            "FROM MarksMovies markMovie " +
+                            "WHERE markMovie.user.idUser = :userId",
+                    Integer.class);
+            query.setParameter("userId", idUser);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.getTransaction().commit();
+                session.close();
+            }
+        }
     }
 
     public boolean saveOrDelete(MarkMoviesJson json) {

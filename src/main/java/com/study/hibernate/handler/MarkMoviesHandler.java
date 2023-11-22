@@ -28,11 +28,12 @@ public class MarkMoviesHandler implements HttpHandler {
         if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
             if (path.matches("/marks/\\d+/\\d+$")) {
                 String dataText = path.substring(path.lastIndexOf('/') + 1);
-                String[] dataIdsText = dataText.split("/");
-                Integer movieId = Integer.parseInt(dataIdsText[0]);
-                Integer userId = Integer.parseInt(dataIdsText[1]);
+                String[] dataIdsText = path.split("/");
+                Integer movieId = Integer.parseInt(dataIdsText[2]);
+                Integer userId = Integer.parseInt(dataIdsText[3]);
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
-                MarksMovies mark = markMoviesDao.getMarkByUserId(movieId, userId);
+                //MarksMovies mark = markMoviesDao.getMarkByUserId(movieId, userId);
+                Integer mark = markMoviesDao.getMarkByUserId(movieId, userId);
                 if (mark != null) {
                     responseText = new Gson().toJson(mark);
                     exchange.sendResponseHeaders(200, responseText.getBytes(StandardCharsets.UTF_8).length);

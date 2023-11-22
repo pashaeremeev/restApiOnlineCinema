@@ -2,20 +2,25 @@ package com.study.hibernate.handler;
 
 import com.google.gson.Gson;
 import com.study.hibernate.entity.User;
+import com.study.hibernate.entity.dao.MarkMoviesDao;
 import com.study.hibernate.entity.dao.UserDao;
+import com.study.hibernate.json.UserJson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserHandler implements HttpHandler {
 
     private UserDao userDao;
+    private MarkMoviesDao markMoviesDao;
 
-    public UserHandler(UserDao userDao) {
+    public UserHandler(UserDao userDao, MarkMoviesDao markMoviesDao) {
         this.userDao = userDao;
+        this.markMoviesDao = markMoviesDao;
     }
 
     @Override
@@ -31,7 +36,7 @@ public class UserHandler implements HttpHandler {
                 // Отправка ответа
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 if (user != null) {
-                    responseText = new Gson().toJson(user);
+                    responseText = new Gson().toJson(user.toUserJson());
                     exchange.sendResponseHeaders(200, responseText.getBytes().length);
                 } else {
                     responseText = new Gson().toJson("User not found");
@@ -43,7 +48,7 @@ public class UserHandler implements HttpHandler {
                 // Отправка ответа
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 if (user != null) {
-                    responseText = new Gson().toJson(user);
+                    responseText = new Gson().toJson(user.toUserJson());
                     exchange.sendResponseHeaders(200, responseText.getBytes().length);
                 } else {
                     responseText = new Gson().toJson("User not found");
@@ -55,7 +60,12 @@ public class UserHandler implements HttpHandler {
                 // Отправка ответа
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 if (!users.isEmpty()) {
-                    responseText = new Gson().toJson(users);
+                    List<UserJson> userJsons = new ArrayList<>();
+                    for (int i = 0; i < users.size(); i++) {
+                        UserJson userJson = users.get(i).toUserJson();
+                        userJsons.add(userJson);
+                    }
+                    responseText = new Gson().toJson(userJsons);
                     exchange.sendResponseHeaders(200, responseText.getBytes().length);
                 } else {
                     responseText = new Gson().toJson("Users not found");
@@ -122,6 +132,28 @@ public class UserHandler implements HttpHandler {
             } else {
                 responseText = new Gson().toJson("Method not allowed");
                 exchange.sendResponseHeaders(405, responseText.getBytes().length);
+            }
+        } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
+            if (path.matches("/users/\\d+$")) {
+                Integer userId = Integer.parseInt(userData);
+                User user = userDao.getUserById(userId); //получение пользователя по айди
+                // Отправка ответа
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                if (user != null) {
+                    List<Integer> moviesIds = markMoviesDao.getMoviesIdsOfUsersMarks(userId);
+                    userDao.deleteById(userId);
+                    if (!moviesIds.isEmpty()) {
+                        for (int i = 0; i < moviesIds.size(); i++) {
+                            Integer movieId = moviesIds.get(i);
+                            markMoviesDao.calculateAvgMark(movieId);
+                        }
+                    }
+                    responseText = new Gson().toJson("Deleted");
+                    exchange.sendResponseHeaders(200, responseText.getBytes().length);
+                } else {
+                    responseText = new Gson().toJson("User not found");
+                    exchange.sendResponseHeaders(404, responseText.getBytes().length);
+                }
             }
         }
 

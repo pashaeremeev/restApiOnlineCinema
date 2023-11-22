@@ -1,5 +1,6 @@
 package com.study.hibernate.entity;
 
+import com.study.hibernate.json.MovieJson;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -58,8 +59,30 @@ public class Movie {
     @Column(name = "rating")
     private Double rating;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "movie")
+    private List<FavMovies> favMovies;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "movie")
+    private List<MarksMovies> marksMovies;
+
     public boolean isNull() {
         return (this.nameRu == null && this.countries == null && this.genres == null && this.year == null
         && this.posterUrl == null && this.posterUrlPreview == null && this.stream == null && this.desc == null);
+    }
+
+    public MovieJson toMovieJson() {
+        MovieJson movieJson = new MovieJson();
+        movieJson.setIdMovie(this.idMovie);
+        movieJson.setNameRu(this.nameRu);
+        movieJson.setNameOriginal(this.nameOriginal);
+        movieJson.setCountries(this.countries);
+        movieJson.setGenres(this.genres);
+        movieJson.setYear(this.year);
+        movieJson.setPosterUrl(this.posterUrl);
+        movieJson.setPosterUrlPreview(this.posterUrlPreview);
+        movieJson.setDesc(this.desc);
+        movieJson.setDuration(this.duration);
+        movieJson.setRating(this.rating);
+        return movieJson;
     }
 }

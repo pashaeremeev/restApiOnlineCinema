@@ -5,12 +5,15 @@ import com.study.hibernate.entity.Movie;
 
 import com.study.hibernate.entity.dao.MovieDao;
 
+import com.study.hibernate.json.MovieJson;
+import com.study.hibernate.json.UserJson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieHandler implements HttpHandler {
@@ -28,8 +31,13 @@ public class MovieHandler implements HttpHandler {
         if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
             if (path.matches("/movies/")) {
                 List<Movie> allMovies = movieDao.getAllMovies();
+                List<MovieJson> movieJsons = new ArrayList<>();
+                for (int i = 0; i < allMovies.size(); i++) {
+                    MovieJson movieJson = allMovies.get(i).toMovieJson();
+                    movieJsons.add(movieJson);
+                }
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
-                responseText = new Gson().toJson(allMovies);
+                responseText = new Gson().toJson(movieJsons);
                 exchange.sendResponseHeaders(200, responseText.getBytes(StandardCharsets.UTF_8).length);
             } else if (path.matches("/movies/\\d+$")) {
                 String movieIdText = path.substring(path.lastIndexOf('/') + 1);
@@ -37,7 +45,7 @@ public class MovieHandler implements HttpHandler {
                 Movie movie = movieDao.getMovieById(movieId);
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 if (movie != null) {
-                    responseText = new Gson().toJson(movie);
+                    responseText = new Gson().toJson(movie.toMovieJson());
                     exchange.sendResponseHeaders(200, responseText.getBytes(StandardCharsets.UTF_8).length);
                 } else {
                     responseText = new Gson().toJson("Movie not found");

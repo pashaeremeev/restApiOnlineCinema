@@ -1,5 +1,6 @@
 package com.study.hibernate.entity;
 
+import com.study.hibernate.json.UserJson;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,4 +33,20 @@ public class User {
 
     @Column(name = "id_role")
     private Integer idRole;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<FavMovies> favMovies;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<MarksMovies> marksMovies;
+
+    public UserJson toUserJson() {
+        UserJson userJson = new UserJson();
+        userJson.setIdUser(this.idUser);
+        userJson.setUsername(this.username);
+        userJson.setPassword(this.password);
+        userJson.setActive(this.isActive);
+        userJson.setIdRole(this.idRole);
+        return  userJson;
+    }
 }

@@ -1,5 +1,6 @@
 package com.study.hibernate;
 
+import com.study.hibernate.entity.FavMovies;
 import com.study.hibernate.entity.MarksMovies;
 import com.study.hibernate.entity.dao.FavMoviesDao;
 import com.study.hibernate.entity.dao.MarkMoviesDao;
@@ -24,10 +25,12 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         UserDao userDao = new UserDao();
         MovieDao movieDao = new MovieDao();
-        server.createContext("/users/", new UserHandler(userDao));
+        FavMoviesDao favMoviesDao = new FavMoviesDao(userDao, movieDao);
+        MarkMoviesDao markMoviesDao = new MarkMoviesDao(userDao, movieDao);
+        server.createContext("/users/", new UserHandler(userDao, markMoviesDao));
         server.createContext("/movies/", new MovieHandler(movieDao));
-        server.createContext("/movies/fav/", new FavMoviesHandler(new FavMoviesDao(userDao, movieDao)));
-        server.createContext("/marks/", new MarkMoviesHandler(new MarkMoviesDao(userDao, movieDao)));
+        server.createContext("/movies/fav/", new FavMoviesHandler(favMoviesDao));
+        server.createContext("/marks/", new MarkMoviesHandler(markMoviesDao));
         server.setExecutor(null);
         server.start();
     }
