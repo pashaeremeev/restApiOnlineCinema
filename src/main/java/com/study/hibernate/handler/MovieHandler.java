@@ -1,6 +1,7 @@
 package com.study.hibernate.handler;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.study.hibernate.entity.Movie;
 
 import com.study.hibernate.entity.dao.MovieDao;
@@ -12,6 +13,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
 
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,16 +67,41 @@ public class MovieHandler implements HttpHandler {
             }
             buf.close();
             if (path.matches("/movies/")) {
-                Movie movie = new Gson().fromJson(requestText.toString(), Movie.class);
-                movie.setRating(0.0);
-                if (!movie.isNull()) {
+                Type typeOfList = new TypeToken<ArrayList<Movie>>(){}.getType();
+                ArrayList<Movie> movies = new Gson().fromJson(requestText.toString(), typeOfList);
+                //Movie movie = new Gson().fromJson(requestText.toString(), Movie.class);
+                //movie.setRating(0.0);
+                if (movies != null || !movies.isEmpty()) {
+                    for (int i = 0; i < movies.size(); i++) {
+                        Movie movie = movies.get(i);
+                        Movie oldMovie;
+                        if (movie.getNameOriginal() == null) {
+                            oldMovie = movieDao.getMovieByNameAndYear(movie.getNameRu(), movie.getYear());
+                        } else {
+                            oldMovie = movieDao.getMovieByNames(movie.getNameRu(), movie.getNameOriginal());
+                        }
+                        if (oldMovie != null) {
+                            oldMovie.update(movie);
+                            movieDao.update(oldMovie);
+                        } else {
+                            movie.setRating(0.0);
+                            movieDao.save(movie);
+                        }
+                    }
+                    responseText = new Gson().toJson("Created");
+                    exchange.sendResponseHeaders(201, responseText.getBytes(StandardCharsets.UTF_8).length);
+                } else {
+                    responseText = new Gson().toJson("Bad Request: check post data");
+                    exchange.sendResponseHeaders(400, responseText.getBytes(StandardCharsets.UTF_8).length);
+                }
+                /*if (!movie.isNull()) {
                     movieDao.save(movie);
                     responseText = new Gson().toJson(movie.getIdMovie() + "");
                     exchange.sendResponseHeaders(201, responseText.getBytes(StandardCharsets.UTF_8).length);
                 } else {
                     responseText = new Gson().toJson("Bad Request: check post data");
                     exchange.sendResponseHeaders(400, responseText.getBytes(StandardCharsets.UTF_8).length);
-                }
+                }*/
             } else {
                 responseText = new Gson().toJson("Method not allowed");
                 exchange.sendResponseHeaders(405, responseText.getBytes(StandardCharsets.UTF_8).length);

@@ -80,9 +80,21 @@ public class Movie {
         movieJson.setYear(this.year);
         movieJson.setPosterUrl(this.posterUrl);
         movieJson.setPosterUrlPreview(this.posterUrlPreview);
+        movieJson.setStream(this.stream);
         movieJson.setDesc(this.desc);
         movieJson.setDuration(this.duration);
         movieJson.setRating(this.rating);
         return movieJson;
+    }
+
+    public void update(Movie newMovie) {
+        this.setCountries(newMovie.getCountries());
+        this.setGenres(newMovie.getGenres());
+        this.setYear(newMovie.getYear());
+        this.setPosterUrl(newMovie.getPosterUrl());
+        this.setPosterUrlPreview(newMovie.getPosterUrlPreview());
+        this.setStream(newMovie.getStream());
+        this.setDesc(newMovie.getDesc());
+        this.setDuration(newMovie.getDuration());
     }
 }

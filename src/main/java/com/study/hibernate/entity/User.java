@@ -34,10 +34,10 @@ public class User {
     @Column(name = "id_role")
     private Integer idRole;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
     private List<FavMovies> favMovies;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
     private List<MarksMovies> marksMovies;
 
     public UserJson toUserJson() {

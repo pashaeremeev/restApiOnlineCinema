@@ -86,13 +86,19 @@ public class UserHandler implements HttpHandler {
             buf.close();
             if (path.matches("/users/")) {
                 User user = new Gson().fromJson(requestText.toString(), User.class);
-                userDao.save(user);
-                if (user.getIdUser() != null) {
-                    responseText = new Gson().toJson(user.getIdUser() + "");
-                    exchange.sendResponseHeaders(201, responseText.getBytes().length);
+                User userIsExists = userDao.getUserByUsername(user.getUsername());
+                if (userIsExists == null) {
+                    userDao.save(user);
+                    if (user.getIdUser() != null) {
+                        responseText = new Gson().toJson(user.getIdUser() + "");
+                        exchange.sendResponseHeaders(201, responseText.getBytes().length);
+                    } else {
+                        responseText = new Gson().toJson("Bad Request: check post data");
+                        exchange.sendResponseHeaders(400, responseText.getBytes().length);
+                    }
                 } else {
-                    responseText = new Gson().toJson("Bad Request: check post data");
-                    exchange.sendResponseHeaders(400, responseText.getBytes().length);
+                    responseText = new Gson().toJson("User with this username is exist");
+                    exchange.sendResponseHeaders(403, responseText.getBytes().length);
                 }
             } else {
                 responseText = new Gson().toJson("Method not allowed");

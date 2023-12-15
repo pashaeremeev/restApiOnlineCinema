@@ -2,6 +2,7 @@ package com.study.hibernate.entity.dao;
 
 import com.study.hibernate.HibernateUtil;
 import com.study.hibernate.entity.Movie;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -83,6 +84,56 @@ public class MovieDao {
                 session.close();
             }
         }
+    }
+
+    public Movie getMovieByNames(String nameRu, String nameOrig) {
+        Session session = null;
+        Movie movie;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction().begin();
+            TypedQuery<Movie> query = session.createQuery(
+                    "SELECT movie " +
+                            "FROM Movie movie "  +
+                            "WHERE movie.nameRu = :nameRu and movie.nameOriginal = :nameOrig",
+                    Movie.class);
+            query.setParameter("nameOrig", nameOrig);
+            query.setParameter("nameRu", nameRu);
+            movie =  query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.getTransaction().commit();
+                session.close();
+            }
+        }
+        return movie;
+    }
+
+    public Movie getMovieByNameAndYear(String nameRu, Integer year) {
+        Session session = null;
+        Movie movie;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction().begin();
+            TypedQuery<Movie> query = session.createQuery(
+                    "SELECT movie " +
+                            "FROM Movie movie "  +
+                            "WHERE movie.nameRu = :nameRu and movie.year = :year",
+                    Movie.class);
+            query.setParameter("year", year);
+            query.setParameter("nameRu", nameRu);
+            movie =  query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.getTransaction().commit();
+                session.close();
+            }
+        }
+        return movie;
     }
 
     public void saveAll(List<Movie> movies) {

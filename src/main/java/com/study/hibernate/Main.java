@@ -16,6 +16,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 
 public class Main {
@@ -31,7 +32,7 @@ public class Main {
         server.createContext("/movies/", new MovieHandler(movieDao));
         server.createContext("/movies/fav/", new FavMoviesHandler(favMoviesDao));
         server.createContext("/marks/", new MarkMoviesHandler(markMoviesDao));
-        server.setExecutor(null);
+        server.setExecutor(Executors.newCachedThreadPool());
         server.start();
     }
 }

@@ -3,6 +3,7 @@ package com.study.hibernate.entity.dao;
 import com.study.hibernate.HibernateUtil;
 import com.study.hibernate.entity.User;
 
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -67,8 +68,9 @@ public class UserDao {
             Root<User> userRoot = cq.from(User.class);
             CriteriaQuery usernameQuery = cq.select(userRoot).where(cb.like(userRoot.get("username"), username));
             user = (User) session.createQuery(usernameQuery).getSingleResult();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoResultException e) {
+            //e.printStackTrace();
+            return null;
         } finally {
             if (session != null && session.isOpen()) {
                 session.getTransaction().commit();
@@ -83,6 +85,9 @@ public class UserDao {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.getTransaction().begin();
+            //user.setFavMovies(new ArrayList<>());
+            //user.setMarksMovies(new ArrayList<>());
+            //session.getEntityManagerFactory().createEntityManager().clear();
             session.persist(user);
         } catch (Exception e) {
             e.printStackTrace();
