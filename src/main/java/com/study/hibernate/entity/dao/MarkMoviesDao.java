@@ -37,8 +37,9 @@ public class MarkMoviesDao {
                     Double.class);
             query.setParameter("movieId", idMovie);
             Double avgMark = query.getSingleResult();
+            Double result = Math.floor(avgMark * 100) / 100;
             if (movie != null) {
-                movie.setRating(avgMark);
+                movie.setRating(result);
                 movieDao.update(movie);
             }
         } catch (Exception e) {
@@ -65,7 +66,7 @@ public class MarkMoviesDao {
             query.setParameter("movieId", idMovie);
             return query.getSingleResult();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         } finally {
             if (session != null && session.isOpen()) {
@@ -87,7 +88,7 @@ public class MarkMoviesDao {
             query.setParameter("userId", idUser);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return new ArrayList<>();
         } finally {
             if (session != null && session.isOpen()) {
@@ -97,7 +98,7 @@ public class MarkMoviesDao {
         }
     }
 
-    public boolean saveOrDelete(MarkMoviesJson json) {
+    public boolean saveOrUpdate(MarkMoviesJson json) {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.getTransaction().begin();
@@ -125,7 +126,7 @@ public class MarkMoviesDao {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         } finally {
             if (session != null && session.isOpen()) {

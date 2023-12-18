@@ -105,14 +105,14 @@ public class UserHandler implements HttpHandler {
                 exchange.sendResponseHeaders(405, responseText.getBytes().length);
             }
         } else if (exchange.getRequestMethod().equalsIgnoreCase("PUT")) {
-            InputStream reader = exchange.getRequestBody();
+            /*InputStream reader = exchange.getRequestBody();
             BufferedReader buf = new BufferedReader(new InputStreamReader(reader));
             StringBuffer requestText = new StringBuffer();
             String line;
             while ((line = buf.readLine()) != null) {
                 requestText.append(line);
             }
-            buf.close();
+            buf.close();*/
             if (path.matches("/users/block/\\d+$")) {
                 Integer userId = Integer.parseInt(userData);
                 User user = userDao.getUserById(userId);
@@ -130,6 +130,17 @@ public class UserHandler implements HttpHandler {
                 if (user != null) {
                     userDao.unblock(userId);
                     responseText = new Gson().toJson("User is unblocked");
+                    exchange.sendResponseHeaders(202, responseText.getBytes().length);
+                } else {
+                    responseText = new Gson().toJson("User not found");
+                    exchange.sendResponseHeaders(404, responseText.getBytes().length);
+                }
+            } else if (path.matches("/users/appoint/\\d+$")) {
+                Integer userId = Integer.parseInt(userData);
+                User user = userDao.getUserById(userId);
+                if (user != null) {
+                    userDao.appointAdm(userId);
+                    responseText = new Gson().toJson("User is admin");
                     exchange.sendResponseHeaders(202, responseText.getBytes().length);
                 } else {
                     responseText = new Gson().toJson("User not found");

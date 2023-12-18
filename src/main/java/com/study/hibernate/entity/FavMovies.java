@@ -27,7 +27,10 @@ public class FavMovies {
     @JoinColumn(name = "id_movie")
     private Movie movie;
 
+    @Column(name = "is_fav")
+    private Boolean isFav;
+
     public boolean isNull() {
-        return (this.user == null && this.movie == null);
+        return (this.user == null && this.movie == null && this.isFav == null);
     }
 }

@@ -59,7 +59,8 @@ public class Movie {
     @Column(name = "rating")
     private Double rating;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "movie")
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH },
+            mappedBy = "movie")
     private List<FavMovies> favMovies;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "movie")

@@ -23,16 +23,16 @@ public class FavMoviesDao {
         this.movieDao = movieDao;
     }
 
-    public List<Movie> getMoviesById(Integer idUser) {
+    public List<Integer> getMoviesById(Integer idUser) {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.getTransaction().begin();
-            TypedQuery<Movie> query = session.createQuery(
-                    "SELECT movie " +
+            TypedQuery<Integer> query = session.createQuery(
+                    "SELECT movie.idMovie " +
                             "FROM Movie movie " +
                             "INNER JOIN FavMovies favMovies ON movie = favMovies.movie " +
-                            "WHERE favMovies.user.idUser = :userId",
-                    Movie.class);
+                            "WHERE favMovies.user.idUser = :userId and favMovies.isFav = true",
+                    Integer.class);
             query.setParameter("userId", idUser);
             return query.getResultList();
         } catch (Exception e) {
@@ -63,11 +63,14 @@ public class FavMoviesDao {
                 );
                 FavMovies note = session.createQuery(query).uniqueResult();
                 if (note != null) {
-                    session.remove(note);
+                    //session.remove(note);
+                    note.setIsFav(json.getFav());
+                    session.merge(note);
                 } else {
                     FavMovies newNote = new FavMovies();
                     newNote.setUser(user);
                     newNote.setMovie(movie);
+                    newNote.setIsFav(json.getFav());
                     session.persist(newNote);
                 }
             }

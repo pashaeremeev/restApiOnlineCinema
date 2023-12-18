@@ -30,8 +30,8 @@ public class Main {
         MarkMoviesDao markMoviesDao = new MarkMoviesDao(userDao, movieDao);
         server.createContext("/users/", new UserHandler(userDao, markMoviesDao));
         server.createContext("/movies/", new MovieHandler(movieDao));
-        server.createContext("/movies/fav/", new FavMoviesHandler(favMoviesDao));
-        server.createContext("/marks/", new MarkMoviesHandler(markMoviesDao));
+        server.createContext("/movies/fav/", new FavMoviesHandler(favMoviesDao, userDao));
+        server.createContext("/marks/", new MarkMoviesHandler(markMoviesDao, userDao));
         server.setExecutor(Executors.newCachedThreadPool());
         server.start();
     }

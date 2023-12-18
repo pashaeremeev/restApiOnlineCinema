@@ -34,7 +34,8 @@ public class User {
     @Column(name = "id_role")
     private Integer idRole;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH },
+            mappedBy = "user", fetch = FetchType.EAGER)
     private List<FavMovies> favMovies;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
@@ -47,6 +48,6 @@ public class User {
         userJson.setPassword(this.password);
         userJson.setActive(this.isActive);
         userJson.setIdRole(this.idRole);
-        return  userJson;
+        return userJson;
     }
 }

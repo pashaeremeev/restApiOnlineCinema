@@ -6,9 +6,12 @@ public class FavMoviesJson {
 
     private Integer idMovie;
 
-    public FavMoviesJson(Integer idUser, Integer idMovie) {
+    private Boolean isFav;
+
+    public FavMoviesJson(Integer idUser, Integer idMovie, Boolean isFav) {
         this.idUser = idUser;
         this.idMovie = idMovie;
+        this.isFav = isFav;
     }
 
     public Integer getIdUser() {
@@ -19,7 +22,11 @@ public class FavMoviesJson {
         return idMovie;
     }
 
+    public Boolean getFav() {
+        return isFav;
+    }
+
     public boolean isNull() {
-        return (this.idUser == null && this.idMovie == null);
+        return (this.idUser == null && this.idMovie == null && this.isFav == null);
     }
 }

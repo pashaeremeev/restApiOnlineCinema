@@ -135,6 +135,24 @@ public class UserDao {
         }
     }
 
+    public void appointAdm(Integer id) {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction().begin();
+            User user = session.get(User.class, id);
+            user.setIdRole(1);
+            session.merge(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.getTransaction().commit();
+                session.close();
+            }
+        }
+    }
+
     public void deleteById(Integer id) {
         Session session = null;
         try {
